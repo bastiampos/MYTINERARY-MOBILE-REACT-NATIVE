@@ -22,7 +22,7 @@ const BottomNavigator = () => {
                 component={Home} 
                 options={{
                     tabBarIcon: ({color, size}) => (
-                        <Ionicons name="md-home-outline" size={size} color={color} />
+                        <Ionicons style={{borderTopColor: 'black', borderTopWidth: 1}} name="md-home-outline" size={size} color={color} />
                     ),
                     title: '',
                     headerShown: false,

@@ -18,7 +18,7 @@ const SignIn = (props) => {
     } 
     
     return (
-        <ScrollView style={{flex: 1, padding: 20}}>
+        <View style={{flex: 1, padding: 20}}>
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>Welcome again</Text>
                 <Text style={styles.text}>We're happy to see you</Text>
@@ -54,7 +54,7 @@ const SignIn = (props) => {
             >
                 <Text style={styles.signupText}>Sign up</Text>
             </TouchableOpacity>
-        </ScrollView>
+        </View>
     )
 }
 

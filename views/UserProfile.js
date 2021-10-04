@@ -13,8 +13,8 @@ const UserProfile = (props) => {
             <View style={styles.coverContainer}>
                 <View style={styles.nameContainer}>
                     <View style={styles.pictureContainer}>
-                        {!props.token && <FontAwesome style={styles.iconDefault} name="user-circle-o" size={110} color="rgba(0,0,0,0.2)" />}
-                        {props.token && <ImageBackground style={styles.picture} source={{uri: props.userInfo.photoUrl }}></ImageBackground>}
+                        {(!props.token || (props.token && props.userInfo.photoUrl == 'default'))  && <FontAwesome style={styles.iconDefault} name="user-circle-o" size={110} color="rgba(0,0,0,0.2)" />}
+                        {(props.token && props.userInfo.photoUrl != 'default') && <ImageBackground style={styles.picture} source={{uri: props.userInfo.photoUrl }}></ImageBackground>}
                     </View>
                     {props.token && <View style={{marginTop: '15%'}}>
                         <Text style={styles.name}>{props.userInfo.name} {props.userInfo.lastname}</Text>

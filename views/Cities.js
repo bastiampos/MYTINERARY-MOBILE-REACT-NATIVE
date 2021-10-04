@@ -10,7 +10,7 @@ const Cities = (props) => {
     const [searchedCities, setSearchedCities] = useState([])
 
     useEffect(() => {
-        fetch('https://mytinerarybe.herokuapp.com/api/cities')
+        fetch('https://mytinerary-bastiampos.herokuapp.com/api/cities')
         .then(res => res.json())
         .then(data => {
             setCities(data.response)
@@ -25,7 +25,7 @@ const Cities = (props) => {
 
     return (
         <View style={styles.main}>
-            <ImageBackground  source={require('../assets/heroCities.jpg')} style={styles.hero}>
+            <ImageBackground  source={{uri: 'https://mytinerary-bastiampos.herokuapp.com/assets/heroCities.jpg'}} style={styles.hero}>
                 <View style={styles.position}>
                     <Text style={styles.textHero}>What'll you do this <Text style={{color: 'orange'}}>summer</Text>?</Text>
                     <View style={styles.searchbarContainer}>
@@ -40,7 +40,7 @@ const Cities = (props) => {
                     </View>
                 </View>
             </ImageBackground>
-            <ScrollView style={styles.container}>
+            <View style={styles.container}>
                 <FlatList 
                     style={{paddingBottom: 50}}
                     numColumns='2'
@@ -67,7 +67,7 @@ const Cities = (props) => {
                         )
                     }} 
                 />
-            </ScrollView>
+            </View>
         </View>
     )
 }

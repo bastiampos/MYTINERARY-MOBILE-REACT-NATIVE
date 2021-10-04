@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from 'react-redux'
 import { Text, View, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { MaterialIcons, Ionicons, MaterialCommunityIcons, Entypo } from '@expo/vector-icons';
+import { MaterialIcons, Ionicons, MaterialCommunityIcons, Entypo, FontAwesome } from '@expo/vector-icons';
 
 import authActions from '../redux/actions/authActions'
 
@@ -19,7 +19,9 @@ const SettingsApp = (props) => {
                     style={{flexDirection: 'row', alignItems: 'center', marginVertical: 20}}
                     onPress={() => props.navigation.navigate('profilestack')}
                 >
-                    <Image style={styles.picture} source={{uri: props.userInfo.photoUrl }} />
+                    {(props.token && props.userInfo.photoUrl != 'default') &&  <Image style={styles.picture} source={{uri: props.userInfo.photoUrl }} />}
+                    {(!props.token || (props.token && props.userInfo.photoUrl == 'default'))  && <FontAwesome 
+                    style={{marginRight: 10}} name="user-circle-o" size={80} color="rgba(0,0,0,0.2)" />}
                     <View>
                         <Text style={styles.name}>{props.userInfo.name} {props.userInfo.lastname}</Text>
                         <Text style={styles.username}>@{props.userInfo.username}</Text>

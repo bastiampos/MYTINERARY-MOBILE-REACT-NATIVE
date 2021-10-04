@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, ImageBackground, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, ImageBackground, TouchableOpacity, FlatList, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {Ionicons, FontAwesome, MaterialCommunityIcons, FontAwesome5} from '@expo/vector-icons'
 import axios from 'axios';
@@ -25,6 +25,24 @@ const City = (props) => {
             })
             .catch(error => console.log(error))
     }, [])
+
+    const sendComment = (itineraryId, newComment) => {
+        if(newComment) {
+            axios.post(
+                `https://mytinerary-bastiampos.herokuapp.com/api/comments/${itineraryId}`, newComment,
+                {headers: {Authorization: "Bearer " + props.token}}
+            )
+                .then( res => {
+                    if(res.data.success) {
+                        setComments(res.data.response)
+                        setNewComment({userId: '', comment: ''})
+                    }
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        }
+    }
 
     return (
         <View style={{flex: 1}}>
@@ -58,7 +76,6 @@ const City = (props) => {
                     <Text style={styles.textContainer}>
                         Places to see, ways to wander, and signature experiences that define New York.
                     </Text>
-                    <View style={styles.itinerariesContainer}>
                         <FlatList
                             style={{paddingBottom: 50}}
                             data={itineraries} 
@@ -67,15 +84,10 @@ const City = (props) => {
                                 return (
                                     <TouchableOpacity 
                                         style={styles.itinerary} 
-                                        onPress={() => {props.navigation.navigate('itinerary', {
-                                            id: item._id
-                                        })}}
+                                        onPress={() => {props.navigation.navigate('itinerary', {itinerary: item})}}
                                     >
-                                        <ImageBackground source={{uri: `https://mytinerary-bastiampos.herokuapp.com/assets/${item.src}`}} style={styles.pictureItinerary}>
-                                            <TouchableOpacity style={styles.favContainer}>
-                                                <FontAwesome name="heart-o" size={18} color="black" />
-                                            </TouchableOpacity>
-                                        </ImageBackground>
+                                        <Image source={{uri: `https://mytinerary-bastiampos.herokuapp.com/assets/${item.src}`}} style={styles.pictureItinerary}>
+                                        </Image>
                                         <View>
                                         <Text style={styles.titleItinerary}>{item.name}</Text>
                                             <View style={styles.pricesRating}>
@@ -90,7 +102,6 @@ const City = (props) => {
                                 )
                             }}
                         />
-                    </View>
                 </View>
             </ScrollView>
         </View>

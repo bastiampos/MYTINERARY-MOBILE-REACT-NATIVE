@@ -1,7 +1,10 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import { ImageBackground, StyleSheet, Text, View, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import CarouselHome from '../components/CarouselHome'
+import {FontAwesome } from '@expo/vector-icons';
+
 
 // const widthScreen = Dimensions.get('window').width
 
@@ -12,20 +15,20 @@ const countries = [
     {nombre: 'Bangkok', foto: 'https://i.pinimg.com/564x/e2/e4/0b/e2e40b898f0dd1dc3cd7a4586ae40d37.jpg'}
 ]
 
-
-// const imagesCountries = []
-// const imagesToPush = countries.map( country => imagesCountries.push(country.foto))
-
 const Home = (props) => {
-    console.log(props.navigation.navigate)
     return (
         <View style={styles.main}>
             <View style={styles.helloContainer}>
-                <Image style={styles.picture} source={require('../assets/yo.jpg')} />
-                <View>
+                {(props.token && props.userInfo.photoUrl != 'default') && <Image style={styles.picture} source={{uri: props.userInfo.photoUrl}} />}
+                {((props.token && props.userInfo.photoUrl == 'default'))  && 
+                <FontAwesome style={{marginRight: 10}} name="user-circle-o" size={70} color="rgba(0,0,0,0.2)" />}
+                {!props.token && <TouchableOpacity onPress={() => props.navigation.navigate('profilestack')}><FontAwesome style={{marginRight: 10}} name="user-circle-o" size={70} color="rgba(0,0,0,0.2)" /></TouchableOpacity>}
+                
+                
+                {props.token && <View>
                     <Text style={styles.hello}>Hello</Text>
-                    <Text style={styles.name}>Sebastian</Text>
-                </View>
+                    <Text style={styles.name}>{props.userInfo.name}</Text>
+                </View>}
             </View>
             <ImageBackground source={require('../assets/herohome.png')} style={styles.hero}>
                 <View style={styles.buttonHero}>
@@ -55,8 +58,14 @@ const Home = (props) => {
         </View>
     )
 }
+const mapStateToProps = (state) => {
+    return {
+        userInfo: state.authReducer.userInfo,
+        token: state.authReducer.token
+    }
+}
 
-export default Home
+export default connect(mapStateToProps)(Home)
 
 const styles = StyleSheet.create({
     main: {
@@ -68,12 +77,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         flexDirection: 'row',
         alignItems: 'center',
+        marginBottom: 30
     },
     picture: {
         width: 80,
         height: 80,
         borderRadius: 50,
         marginRight: 15,
+        borderWidth: 4,
+        borderColor: 'white',
+        overflow: 'hidden'
     },
     hello: {
         fontSize: 14,

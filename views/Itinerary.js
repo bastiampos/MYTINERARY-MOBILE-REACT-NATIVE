@@ -1,25 +1,48 @@
 import React, {useEffect, useState} from 'react';
+import axios from 'axios';
+import { connect } from 'react-redux'
 import { LinearGradient } from 'expo-linear-gradient';
 import {ImageBackground, ScrollView, StyleSheet, Text, View, TouchableOpacity, Image, TextInput, FlatList } from 'react-native';
 import {FontAwesome5, Ionicons, FontAwesome, MaterialCommunityIcons} from '@expo/vector-icons'
-import axios from 'axios';
+
 import CarouselItinerary from '../components/CarouselItinerary';
+import Comment from '../components/Comment';
 
 const Itinerary = (props) => {
 
     const [itinerary, setItinerary] = useState({})
     const [activities, setActivities] = useState([])
+    const [newComment, setNewComment] = useState({userId: '', comment: ''})
+    const [comments, setComments] = useState([])
+    const [renderComments, setRenderComments] = useState(false)
+    const [iconLike, setIconLike] = useState('')
+    const [likesL, setLikesL] = useState(0)
 
     useEffect(() => {
-        axios.get(`https://mytinerarybe.herokuapp.com/api/itinerary/${props.route.params.id}`)
-            .then(res => {
-                setItinerary(res.data.response)
+        axios.get(`https://mytinerarybe.herokuapp.com/api/itinerary/${props.route.params.itinerary._id}`)
+        .then( res => {
+            setItinerary(res.data.response)
+            setComments(res.data.response.comments.reverse())
+            setLikesL(res.data.response.likes.length)
+
+            let likeUserFound = res.data.response.likes.find(like => {
+                return like == props.userInfo._id
             })
-            .catch(error => console.log(error))
+            
+            if(likeUserFound) {
+                setIconLike('has')
+            } else {
+                setIconLike('hasnot')
+            }
+        })
+        .catch(error => {
+            console.log(error)
+        })   
+        setRenderComments(true)
     }, [])
 
     useEffect( () => {
-        axios.get(`https://mytinerarybe.herokuapp.com/api/activities/${props.route.params.id}`)
+        axios.get(`https://mytinerarybe.herokuapp.com/api/activities/${props.route.params.itinerary._id}`)
                 .then( res => {
                     setActivities(res.data.response)
                 })
@@ -28,17 +51,77 @@ const Itinerary = (props) => {
                 })     
     }, [])
 
-    console.log(itinerary)
+    const sendComment = () => {
+        if(newComment) {
+            axios.post(
+                `https://mytinerary-bastiampos.herokuapp.com/api/comments/${props.route.params.itinerary._id}`, newComment,
+                {headers: {Authorization: "Bearer " + props.token}}
+            )
+                .then( res => {
+                    if(res.data.success) {
+                        setComments(res.data.response.reverse())
+                        setNewComment({userId: '', comment: ''})
+                    }
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        }
+    }
+
+    const pushLike = () => {
+        axios.post(
+            `https://mytinerary-bastiampos.herokuapp.com/api/likes/${itinerary._id}`, 
+            {userId: props.userInfo._id},
+            {headers: {Authorization: "Bearer " + props.token}}
+        )
+            .then( res => {
+                setLikesL(likesL + 1)
+                setIconLike('has')
+            })
+            .catch(error => {
+                console.log(error)
+            })
+    }
+
+    const pullLike = () => {
+        axios.post(
+            `https://mytinerary-bastiampos.herokuapp.com/api/deletelike/${itinerary._id}`, 
+            {userId: props.userInfo._id},
+            {headers: {Authorization: "Bearer " + props.token}}
+        )
+            .then( res => {
+                setLikesL(likesL - 1)
+                setIconLike('hasnot')
+            })
+            .catch(error => {
+                console.log(error)
+            })
+    }
 
     return (
         <ScrollView style={{flex: 1}}>
             <ImageBackground source={{uri: `https://mytinerary-bastiampos.herokuapp.com/assets/${itinerary.src}`}} style={styles.hero}>
                 <LinearGradient colors={['transparent','rgba(0,0,0,0.6)']} style={styles.shadow}>
-                    <TouchableOpacity style={styles.favContainer}>
+                    {!props.token && <TouchableOpacity style={[styles.favContainer, {backgroundColor: 'white'}]}>
                         <FontAwesome name="heart-o" size={24} color="black" />
-                    </TouchableOpacity>
+                    </TouchableOpacity>}
+                    {(props.token && iconLike == 'hasnot') && 
+                    <TouchableOpacity 
+                        style={[styles.favContainer, {backgroundColor: 'white'}]}
+                        onPress={() => pushLike()}
+                    >
+                        <FontAwesome name="heart-o" size={24} color="black" />
+                    </TouchableOpacity>}
+                    {(props.token && iconLike == 'has') && 
+                    <TouchableOpacity 
+                        style={[styles.favContainer, {backgroundColor: 'black'}]}
+                        onPress={() => pullLike()}
+                    >
+                        <FontAwesome name="heart-o" size={24} color="white" />
+                    </TouchableOpacity>}
                     <View style={styles.titleContainer}>
-                        <Image style={styles.pictureAuthor} source={require('../assets/charlie.jpg')} />
+                        {props.route.params.itinerary.author.src && <Image style={styles.pictureAuthor} source={{uri: `https://mytinerary-bastiampos.herokuapp.com/assets/${props.route.params.itinerary.author.src}`}} />}
                         <View>
                             <Text style={styles.title}>{itinerary.name}</Text>  
                             {itinerary.author && <Text style={styles.nameAuthor}>by {itinerary.author.name} {itinerary.author.lastname}</Text> }
@@ -72,7 +155,7 @@ const Itinerary = (props) => {
                     <View style={styles.iconBg}>
                         <FontAwesome name="heart-o" size={24} color="gray" />
                     </View>
-                    <Text style={styles.detailsIcon}>{itinerary.likes ? itinerary.likes.length : 0}</Text>
+                    <Text style={styles.detailsIcon}>{likesL ? likesL : 0}</Text>
                     <Text style={styles.titleIcon}>Likes</Text>
                 </View>
             </View>
@@ -97,32 +180,37 @@ const Itinerary = (props) => {
                 <Text style={styles.descriptionTitle}>People are saying</Text>
                 <Text style={styles.description}>Lived experiences by other people</Text>
                 <View style={styles.comments}>
-                    <View style={styles.newComment}>
+                    {props.token && <View style={styles.newComment}>
                         <TextInput 
                             style={styles.commentInput} 
                             placeholder='Write a comment...' 
+                            value={newComment.comment}
+                            onChange={(e) => setNewComment({userId: props.userInfo._id , comment: e.nativeEvent.text})}
                         />
-                        <TouchableOpacity style={styles.iconInputComment}>
+                        <TouchableOpacity 
+                            style={styles.iconInputComment}
+                            onPress={() => sendComment()}
+                        >
                             <MaterialCommunityIcons name="plus-circle-outline" size={34} color="white" />
                         </TouchableOpacity>
-                    </View>
+                    </View>}
+
+                    {!props.token && 
+                        <TouchableOpacity style={styles.newComment} onPress={() => {props.navigation.navigate('profilestack')}}>
+                            <View style={styles.textNoComment}>
+                                <Text style={{color: 'gray'}}>You need be logged to comment...</Text>
+                            </View>
+                            <View style={styles.iconInputComment}>
+                                <MaterialCommunityIcons name="plus-circle-outline" size={34} color="white" />
+                            </View>
+                        </TouchableOpacity>
+                    }
                     
-                    <FlatList
-                        data={itinerary.comments} 
+                    {renderComments && <FlatList
+                        data={comments} 
                         keyExtractor={(comment) => comment._id}
-                        renderItem={({item}) => {
-                            // console.log(item)
-                            return (
-                                <View style={styles.commentContainer}>
-                                    <Image style={styles.pictureComment} source={{uri: item.userId.photoUrl}} />
-                                    <View>
-                                        <Text style={styles.authorComment}>{item.userId.name} {item.userId.lastname}</Text>
-                                        <Text style={styles.comment}>{item.comment}</Text>
-                                    </View>
-                                </View>
-                            )
-                        }}
-                    />
+                        renderItem={({item}) => <Comment item={item} />}
+                    />}
 
                 </View>
             </View>
@@ -130,9 +218,22 @@ const Itinerary = (props) => {
     )
 }
 
-export default Itinerary
+const mapStateToProps = (state) => {
+    return {
+        userInfo: state.authReducer.userInfo,
+        token: state.authReducer.token
+    }
+}
+
+export default connect(mapStateToProps)(Itinerary)
 
 const styles = StyleSheet.create({
+    textNoComment: {
+        width: '85%',
+        flex: 1,
+        paddingLeft: 20,
+        paddingTop: 15,
+    },
     hero: {
         height: 250,
         marginBottom: 15
@@ -151,7 +252,6 @@ const styles = StyleSheet.create({
         color: 'lightgreen'
     },
     favContainer: {
-        backgroundColor: 'white',
         borderRadius: 50,
         height: 40,
         width: 40,
@@ -235,30 +335,6 @@ const styles = StyleSheet.create({
     },
     comments: {
         marginVertical: 20,
-    },
-    commentContainer: {
-        flex:1,
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        borderRadius: 3,
-        padding: 10,
-        backgroundColor: 'rgba(0,0,0,0.1)',
-        marginBottom: 10
-    },
-    pictureComment: {
-        height: 50,
-        width: 50,
-        borderRadius: 50,
-        marginRight: 10,
-    },
-    authorComment: {
-        fontWeight: 'bold',
-        fontSize: 16
-    },
-    comment: {
-        maxWidth: '92%',
-        color: 'gray',
-        flex: 1,
     },
     newComment: {
         flexDirection: 'row',

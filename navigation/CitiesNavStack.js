@@ -13,16 +13,25 @@ const CitiesNavigator = () => {
                 name='cities' 
                 component={Cities} 
                 options= {{
-                    title: 'Cities'
+                    title: 'Cities',
+                    headerBackTitleVisible: false
                 }}
             />
             <Stack.Screen 
                 name='city' 
                 component={City} 
+                options= {{
+                    title: '',
+                    headerBackTitleVisible: false
+                }}
             />
             <Stack.Screen 
                 name='itinerary' 
                 component={Itinerary} 
+                options= {{
+                    title: '',
+                    headerBackTitleVisible: false
+                }}
             />
         </Stack.Navigator>
     )
