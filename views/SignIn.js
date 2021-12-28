@@ -41,7 +41,8 @@ const SignIn = (props) => {
                         placeholder='4+ characters'
                         onChange={(e) => setUser({...user, password: e.nativeEvent.text})}
                         value={user.password}
-                        keyboardType='visible-password'
+                        keyboardType= 'email-address'
+                        secureTextEntry={true}
                     />
                 </View>
             </View>

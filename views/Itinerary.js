@@ -7,6 +7,7 @@ import {FontAwesome5, Ionicons, FontAwesome, MaterialCommunityIcons} from '@expo
 
 import CarouselItinerary from '../components/CarouselItinerary';
 import Comment from '../components/Comment';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const Itinerary = (props) => {
 
@@ -100,10 +101,11 @@ const Itinerary = (props) => {
     }
 
     return (
-        <ScrollView style={{flex: 1}}>
+        <KeyboardAwareScrollView style={{flex: 1}}>
             <ImageBackground source={{uri: `https://mytinerary-bastiampos.herokuapp.com/assets/${itinerary.src}`}} style={styles.hero}>
                 <LinearGradient colors={['transparent','rgba(0,0,0,0.6)']} style={styles.shadow}>
-                    {!props.token && <TouchableOpacity style={[styles.favContainer, {backgroundColor: 'white'}]}>
+                    {!props.token && 
+                    <TouchableOpacity style={[styles.favContainer, {backgroundColor: 'white'}]} onPress={() => {props.navigation.navigate('profilestack')}}>
                         <FontAwesome name="heart-o" size={24} color="black" />
                     </TouchableOpacity>}
                     {(props.token && iconLike == 'hasnot') && 
@@ -214,7 +216,7 @@ const Itinerary = (props) => {
 
                 </View>
             </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
     )
 }
 

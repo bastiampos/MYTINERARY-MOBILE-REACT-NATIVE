@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
 import { connect } from 'react-redux'
 import SelectDropdown from 'react-native-select-dropdown'
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView } from 'react-native';
 import {FontAwesome} from '@expo/vector-icons'
 
 import authActions from '../redux/actions/authActions'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const SignUp = (props) => {
 
@@ -23,9 +24,7 @@ const SignUp = (props) => {
     })
 
     const submit = async () => {
-        // if(dataUser.email && user.password) {
-            props.addNewUser(dataUser)
-        // } 
+        props.addNewUser(dataUser)
     } 
 
     const splitFullName = (fullname) => {
@@ -34,7 +33,7 @@ const SignUp = (props) => {
     }
 
     return (
-        <ScrollView style={{flex: 1, paddingHorizontal: 20, paddingTop: 10}}>
+        <KeyboardAwareScrollView style={{flex: 1, paddingHorizontal: 20, paddingTop: 10}} >
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>Become a member of MyTinerary</Text>
                 <Text style={styles.text}>Share your adventures, meet others' and have each one at hand</Text>
@@ -80,6 +79,7 @@ const SignUp = (props) => {
                     <TextInput 
                         style={styles.input}
                         placeholder='Email'
+                        keyboardType= 'email-address'
                         onChange={(e) => setDataUser({...dataUser, email: e.nativeEvent.text})}                    
                     />
                     {props.validationError && <Text style={styles.error}>{props.validationError.email}</Text>}
@@ -89,6 +89,8 @@ const SignUp = (props) => {
                     <TextInput 
                         style={styles.input}
                         placeholder='Password'
+                        secureTextEntry={true}
+                        keyboardType= 'email-address'
                         onChange={(e) => setDataUser({...dataUser, password: e.nativeEvent.text})}                    
                     />
                     {props.validationError && <Text style={styles.error}>{props.validationError.password}</Text>}
@@ -102,7 +104,7 @@ const SignUp = (props) => {
             >
                 <Text style={styles.signinText}>Sign in</Text>
             </TouchableOpacity>
-        </ScrollView>
+        </KeyboardAwareScrollView>
     )
 }
 
@@ -141,6 +143,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         alignItems: 'center',
         justifyContent: 'center',
+        marginBottom: 50
     },
     signinText: {fontWeight: '600', fontSize: 18},
     signupButton: {
